@@ -937,7 +937,6 @@ const MAX_VALUE = Infinity;
 // chain Basebone Constraint Type
 
 const NONE = 1; // No constraint
-// 3D
 const GLOBAL_ROTOR = 2;// World-space rotor constraint
 const GLOBAL_HINGE = 3;// World-space hinge constraint
 const LOCAL_ROTOR = 4;// Rotor constraint in the coordinate space of (i.e. relative to) the direction of the connected bone
@@ -973,38 +972,7 @@ const DOWN = new V2( 0, -1 );
 const LEFT = new V2( -1, 0 );
 const RIGHT = new V2( 1, 0 );
 
-class Joint3D {
 
-    constructor() {
-
-        this.isJoint3D = true;
-
-        this.rotor = math.PI;
-        this.min = -math.PI;
-        this.max = math.PI;
-
-        this.freeHinge = true;
-
-        this.rotationAxisUV = new V3();
-        this.referenceAxisUV = new V3();
-        this.type = J_BALL;
-
-    }
-
-    clone() {
-
-        let j = new this.constructor();
-        j.type = this.type;
-        j.rotor = this.rotor;
-        j.max = this.max;
-        j.min = this.min;
-        j.freeHinge = this.freeHinge;
-        j.rotationAxisUV.copy( this.rotationAxisUV );
-        j.referenceAxisUV.copy( this.referenceAxisUV );
-
-        return j
-
-    }
 
     testAngle() {
 
@@ -1097,25 +1065,6 @@ class Joint3D {
     
 }
 
-class Bone3D {
-
-    constructor( startLocation, endLocation, directionUV, length, color ) {
-
-        this.isBone3D = true;
-
-        this.joint = new Joint3D();
-        this.start = new V3();
-        this.end = new V3();
-        
-        this.boneConnectionPoint = END;
-        this.length = 0;
-
-        this.color = color || 0xFFFFFF;
-        this.name = '';
-
-        this.init( startLocation, endLocation, directionUV, length );
-
-    }
 
     init( startLocation, endLocation, directionUV, length ){
 
@@ -1219,53 +1168,6 @@ class Bone3D {
 
 }
 
-class Chain3D {
-
-    constructor( color ) {
-
-        this.isChain3D = true;
-
-        this.tmpTarget = new V3();
-        this.tmpMtx = new M3();
-
-        this.bones = [];
-        this.name = '';
-        this.color = color || 0xFFFFFF;
-
-        this.solveDistanceThreshold = 1.0;
-        this.minIterationChange = 0.01;
-        this.maxIteration = 20;
-        this.precision = 0.001;
-
-        this.chainLength = 0;
-        this.numBones = 0;
-
-        this.baseLocation = new V3();
-        this.fixedBaseMode = true;
-
-        this.baseboneConstraintType = NONE;
-
-        this.baseboneConstraintUV = new V3();
-        this.baseboneRelativeConstraintUV = new V3();
-        this.baseboneRelativeReferenceConstraintUV = new V3();
-        this.lastTargetLocation = new V3( MAX_VALUE, MAX_VALUE, MAX_VALUE );
-
-        this.lastBaseLocation =  new V3( MAX_VALUE, MAX_VALUE, MAX_VALUE );
-        this.currentSolveDistance = MAX_VALUE;
-
-        this.connectedChainNumber = -1;
-        this.connectedBoneNumber = -1;
-        this.boneConnectionPoint = END;
-
-        // test full restrict angle 
-        this.isFullForward = false;
-
-        
-
-        this.embeddedTarget = new V3();
-        this.useEmbeddedTarget = false;
-
-    }
 
     clone() {
 
@@ -1351,57 +1253,11 @@ class Chain3D {
 
     }
 
-    addConsecutiveBone( directionUV, length ) {
 
-         if (this.numBones > 0) {               
-            // Get the end location of the last bone, which will be used as the start location of the new bone
-            // Add a bone to the end of this IK chain
-            // Note: We use a normalised version of the bone direction
-            this.addBone( new Bone3D(  this.bones[ this.numBones-1 ].end, undefined, directionUV.normalised(), length ) );
-        }
+    
 
-    }
-
-    addConsecutiveFreelyRotatingHingedBone( directionUV, length, type, hingeRotationAxis ) {
-
-        this.addConsecutiveHingedBone( directionUV, length, type, hingeRotationAxis, 180, 180, math.genPerpendicularVectorQuick( hingeRotationAxis ) );
-
-    }
-
-    addConsecutiveHingedBone( DirectionUV, length, type, HingeRotationAxis, clockwiseDegs, anticlockwiseDegs, hingeReferenceAxis ) {
-
-        // Cannot add a consectuive bone of any kind if the there is no basebone
-        if ( this.numBones === 0 ) return;
-
-        // Normalise the direction and hinge rotation axis 
-        let directionUV = DirectionUV.normalised();
-        let hingeRotationAxis = HingeRotationAxis.normalised();
-            
-        // Create a bone, get the end location of the last bone, which will be used as the start location of the new bone
-        let bone = new Bone3D( this.bones[ this.numBones-1 ].end, undefined, directionUV, length, this.color );
-
-        type = type || 'global';
-
-        // ...set up a joint which we'll apply to that bone.
-        bone.joint.setHinge( type === 'global' ? J_GLOBAL : J_LOCAL, hingeRotationAxis, clockwiseDegs, anticlockwiseDegs, hingeReferenceAxis );
-        
-        // Finally, add the bone to this chain
-        this.addBone( bone );
-
-    }
-
-    addConsecutiveRotorConstrainedBone( boneDirectionUV, length, constraintAngleDegs ) {
-
-        if (this.numBones === 0) return;
-
-        // Create the bone starting at the end of the previous bone, set its direction, constraint angle and colour
-        // then add it to the chain. Note: The default joint type of a new Bone is J_BALL.
-        boneDirectionUV = boneDirectionUV.normalised();
-        let bone = new Bone3D( this.bones[ this.numBones-1 ].end, undefined , boneDirectionUV, length );
-        bone.joint.setAsBallJoint( constraintAngleDegs );
-        this.addBone( bone );
-
-    }
+    
+ 
 
     // -------------------------------
     //      GET
@@ -3836,4 +3692,3 @@ class HISolver {
 
 }
 
-export { Bone2D, Bone3D, Chain2D, Chain3D, DOWN, END, GLOBAL_ABSOLUTE, GLOBAL_HINGE, GLOBAL_ROTOR, HISolver, IKSolver, J_BALL, J_GLOBAL, J_LOCAL, Joint2D, Joint3D, LEFT, LOCAL_ABSOLUTE, LOCAL_HINGE, LOCAL_RELATIVE, LOCAL_ROTOR, M3, MAX_VALUE, NONE, PRECISION, PRECISION_DEG, REVISION, RIGHT, START, Structure2D, Structure3D, UP, V2, V3, X_AXE, X_NEG, Y_AXE, Y_NEG, Z_AXE, Z_NEG, math };
