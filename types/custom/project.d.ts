@@ -88,10 +88,6 @@ declare class ModelProject {
 	unhandled_root_fields: any
 	ambientocclusion: boolean
 	front_gui_light: boolean
-
-	get model_3d(): THREE.Object3D
-	get nodes_3d(): {
-		[uuid: UUID]: THREE.Object3D
 	}
 	[key: string]: any
 
