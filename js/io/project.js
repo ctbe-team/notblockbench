@@ -72,11 +72,6 @@ export class ModelProject {
 		this.display_settings = {};
 
 		ModelProject.all.push(this);
-
-		ProjectData[this.uuid] = {
-			model_3d: new THREE.Object3D(),
-			nodes_3d: {}
-		}
 	}
 	extend() {
 		for (var key in ModelProject.properties) {
@@ -135,12 +130,7 @@ export class ModelProject {
 	set geometry_name(val) {
 		this.model_identifier = val;
 	}
-	get model_3d() {
-		return ProjectData[this.uuid].model_3d;
-	}
-	get nodes_3d() {
-		return ProjectData[this.uuid].nodes_3d;
-	}
+	
 	getDisplayName() {
 		return this.name || this.model_identifier || this.format.name;
 	}
@@ -211,7 +201,6 @@ export class ModelProject {
 		Panels.textures.inside_vue.textures = Texture.all;
 		Panels.textures.inside_vue.texture_groups = TextureGroup.all;
 		Panels.layers.inside_vue.layers = Texture.selected ? Texture.selected.layers : [];
-		scene.add(this.model_3d);
 
 		Panels.animations.inside_vue.animations = this.animations;
 		Panels.animations.inside_vue.animation_controllers = this.animation_controllers;
@@ -325,7 +314,6 @@ export class ModelProject {
 		this.selected = false;
 		Painter.current = {};
 		Animator.MolangParser.context = {};
-		scene.remove(this.model_3d);
 		OutlinerNode.uuids = {};
 		MirrorModeling.cached_elements = {};
 		Blockbench.Format = 0;
@@ -417,13 +405,7 @@ export class ModelProject {
 			Texture.all.forEach(tex => tex.stopWatcher());
 
 			// Clear memory
-			for (let uuid in ProjectData[this.uuid].nodes_3d) {
-				let node_3d = ProjectData[this.uuid].nodes_3d[uuid];
-				if (node_3d.parent) node_3d.parent.remove(node_3d);
-				if (node_3d.geometry) node_3d.geometry.dispose();
-				if (node_3d.outline && node_3d.outline.geometry) {
-					node_3d.outline.geometry.dispose();
-				}
+				
 			}
 
 			let index = ModelProject.all.indexOf(this);
