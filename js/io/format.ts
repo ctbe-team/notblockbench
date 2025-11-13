@@ -24,36 +24,6 @@ export interface FormatPage {
 	)[]
 	button_text?: string
 }
-export interface CubeSizeLimiter {
-	/**
-	 * Test whether the cube with the optionally provided values violates the size restrictions
-	 */
-	test: (
-		cube: Cube,
-		values?: { from: ArrayVector3; to: ArrayVector3; inflate: number }
-	) => boolean
-	/**
-	 * Move the cube back into the restructions
-	 */
-	move(cube: Cube, values?: { from: ArrayVector3; to: ArrayVector3; inflate: number }): void
-	/**
-	 * Clamp the cube to fit into the restrictions. When an axis and direction is provided, clamp the element on that side to prevent wandering.
-	 */
-	clamp: (
-		cube: Cube,
-		values?: { from: ArrayVector3; to: ArrayVector3; inflate: number },
-		axis?: number,
-		direction?: boolean | null
-	) => void
-	/**
-	 * Set to true to tell Blockbench to check and adjust the cube limit after rotating a cube
-	 */
-	rotation_affected?: boolean
-	/**
-	 * Optionally set the coordinate limits of cubes in local space
-	 */
-	coordinate_limits?: [number, number]
-}
 
 /**
  * The current format
@@ -133,11 +103,9 @@ export interface FormatFeatures {
 	/**
 	 * Add the ability to rotate cubes
 	 */
-	rotate_cubes: boolean
 	/**
 	 * Add the ability to stretch cubes. Stretch scales cubes from the center without affecting UV
 	 */
-	stretch_cubes: boolean
 	/**
 	 * If true, cube sizes are limited to integer values
 	 */
@@ -606,53 +574,14 @@ export class ModelFormat implements FormatOptions {
 }
 
 new Property(ModelFormat, 'string', 'node_name_regex');
-new Property(ModelFormat, 'boolean', 'box_uv');
-new Property(ModelFormat, 'boolean', 'optional_box_uv');
-new Property(ModelFormat, 'boolean', 'box_uv_float_size');
 new Property(ModelFormat, 'boolean', 'single_texture');
 new Property(ModelFormat, 'boolean', 'single_texture_default');
-new Property(ModelFormat, 'boolean', 'per_group_texture');
-new Property(ModelFormat, 'boolean', 'per_texture_uv_size');
-new Property(ModelFormat, 'boolean', 'model_identifier', {default: true});
-new Property(ModelFormat, 'boolean', 'legacy_editable_file_name');
-new Property(ModelFormat, 'boolean', 'parent_model_id');
-new Property(ModelFormat, 'boolean', 'vertex_color_ambient_occlusion');
 new Property(ModelFormat, 'boolean', 'animated_textures');
-new Property(ModelFormat, 'boolean', 'bone_rig');
-new Property(ModelFormat, 'boolean', 'armature_rig');
-new Property(ModelFormat, 'boolean', 'centered_grid');
-new Property(ModelFormat, 'number', 'block_size', {default: 16});
-new Property(ModelFormat, 'boolean', 'rotate_cubes');
-new Property(ModelFormat, 'boolean', 'stretch_cubes');
-new Property(ModelFormat, 'boolean', 'integer_size');
-new Property(ModelFormat, 'boolean', 'meshes');
-new Property(ModelFormat, 'boolean', 'splines');
-new Property(ModelFormat, 'boolean', 'texture_meshes');
-new Property(ModelFormat, 'boolean', 'billboards');
-new Property(ModelFormat, 'boolean', 'locators');
-new Property(ModelFormat, 'boolean', 'rotation_limit');
-new Property(ModelFormat, 'boolean', 'rotation_snap');
-new Property(ModelFormat, 'boolean', 'uv_rotation');
-new Property(ModelFormat, 'boolean', 'java_cube_shading_properties');
-new Property(ModelFormat, 'boolean', 'java_face_properties');
-new Property(ModelFormat, 'boolean', 'cullfaces');
 new Property(ModelFormat, 'boolean', 'select_texture_for_particles');
 new Property(ModelFormat, 'boolean', 'texture_mcmeta');
-new Property(ModelFormat, 'boolean', 'bone_binding_expression');
-new Property(ModelFormat, 'boolean', 'animation_files');
-new Property(ModelFormat, 'boolean', 'animation_controllers');
-new Property(ModelFormat, 'boolean', 'animation_loop_wrapping');
-new Property(ModelFormat, 'boolean', 'quaternion_interpolation');
-new Property(ModelFormat, 'boolean', 'per_animator_rotation_interpolation');
 new Property(ModelFormat, 'boolean', 'image_editor');
-new Property(ModelFormat, 'boolean', 'edit_mode', {default: true});
 new Property(ModelFormat, 'boolean', 'paint_mode', {default: true});
-new Property(ModelFormat, 'boolean', 'pose_mode');
-new Property(ModelFormat, 'boolean', 'display_mode');
-new Property(ModelFormat, 'boolean', 'animation_mode');
 new Property(ModelFormat, 'boolean', 'texture_folder');
-new Property(ModelFormat, 'boolean', 'pbr');
-new Property(ModelFormat, 'enum', 'euler_order', {default: 'ZYX'});
 
 
 Object.assign(window, {
